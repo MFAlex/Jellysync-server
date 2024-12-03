@@ -17,7 +17,7 @@ wss.on('connection', function connection(ws) {
             if (json.type !== "create" && json.type !== "join") {
                 throw new Error("");
             }
-            const roomDetails = json.type === "create" ? newRoom(json.displayName, json.jellyfinHost) : joinRoom(json.room, json.displayName);
+            const roomDetails = json.type === "create" ? newRoom(json.displayName, json.displayNameColor, json.jellyfinHost) : joinRoom(json.room, json.displayName, json.displayNameColor);
             if (typeof roomDetails === "boolean") {
                 throw new Error("");
             } else {
@@ -71,13 +71,13 @@ wss.on('connection', function connection(ws) {
     ws.addEventListener('message', stageOneMessageHandler);
 });
 
-function newRoom(displayName, jellyfinHost) { //returns {room: string room ID, index: number member ID} or false
+function newRoom(displayName, displayNameColor, jellyfinHost) { //returns {room: string room ID, index: number member ID} or false
     if (typeof displayName !== "string" || typeof jellyfinHost !== "string") return false;
     let uuid = uuidv4().replaceAll("-", "");
     let roomObject = {
         room: uuid,
         leader: 0,
-        members: [{ index: 0, displayName }],
+        members: [{ index: 0, displayName, displayNameColor }],
         jellyfinHost
     }
     rooms[uuid] = roomObject;
@@ -89,12 +89,12 @@ function newRoom(displayName, jellyfinHost) { //returns {room: string room ID, i
     return { room: uuid, index: 0 };
 }
 
-function joinRoom(room, displayName) { //returns {room: string room ID, index: number member ID} or false
+function joinRoom(room, displayName, displayNameColor) { //returns {room: string room ID, index: number member ID} or false
     if (typeof room !== "string" || typeof displayName !== "string") return false;
     if (room in rooms) {
         const roomObj = rooms[room];
         const memberId = Math.max(...roomObj.members.map(o => o.index)) + 1;
-        const member = { displayName, index: memberId };
+        const member = { displayName, index: memberId, displayNameColor };
         roomObj.members.push(member);
         memberPlayback[room].push({
             index: memberId,
