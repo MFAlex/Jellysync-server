@@ -191,6 +191,8 @@ function syncToLeadersTime(roomId, play) {
     const leaderState = memberPlayback[roomId].find(it => it.index == leaderId);
     const anyBuffering = anyUsersBuffering(roomId);
 
+    if (leaderState == null) return;
+
     if (leaderState.state !== "nothing-playing" && leaderState.timestamp != undefined && leaderState.media != undefined) {
         const broadcastMessage = {
             type: "playback-state",
@@ -219,6 +221,7 @@ function changePlaybackStateReceived(roomId, memberIndex, packet) {
             type: "playback-state",
             state: "nothing-playing",
         });
+        const displayName = room.members.find(it => it.index == memberIndex).displayName;
         broadcastToRoom(roomId, {
             type: "chat",
             member: "system",
